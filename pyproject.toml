@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "memory-page-backend"
+version = "0.1.0"
+description = ""
+authors = ["LeeInGyu <developLee20@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pre-commit = "^4.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
