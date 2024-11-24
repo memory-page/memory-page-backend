@@ -4,13 +4,6 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0  # 최신 버전 사용 권장
-    hooks:
-      - id: mypy
-        args: ["--explicit-package-bases", "--ignore-missing-imports"]
-
-
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -33,4 +26,33 @@ repos:
     rev: v2.3.1
     hooks:
       - id: autoflake
-        args: ['--remove-all-unused-imports', '--ignore-init-module-imports']
+        language: python
+        args:
+          - --remove-unused-variables
+          - --remove-all-unused-imports
+          - --in-place
+          - --expand-star-imports
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        args:
+          - --strict
+          - --disallow-untyped-defs
+          - --warn-return-any
+          - --show-error-codes
+          - --ignore-missing-imports
+          - --pretty
+        files: ^app/.*
+
+  - repo: local
+    hooks:
+      - id: pytest-xdist
+        name: Run pytest-xdist
+        entry: pytest -n auto
+        language: system
+        pass_filenames: false
+        always_run: true
