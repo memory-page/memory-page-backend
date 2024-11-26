@@ -48,11 +48,21 @@ repos:
           - --pretty
         files: ^app/.*
 
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint
+        name: Markdown Lint
+        entry: markdownlint --fix
+        language: node
+        files: \.md$
+        types: [file]
+
   - repo: local
     hooks:
       - id: pytest-xdist
         name: Run pytest-xdist
-        entry: pytest -n auto
+        entry: poetry run pytest . -n auto --asyncio-mode=auto
         language: system
         pass_filenames: false
         always_run: true
