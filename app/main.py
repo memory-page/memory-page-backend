@@ -2,7 +2,11 @@ from fastapi import FastAPI
 import uvicorn
 from typing import Any, Dict
 
+from app.domain.board.router import router as board_router
+
 app = FastAPI()
+
+app.include_router(router=board_router)
 
 
 @app.get("/")
