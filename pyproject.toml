@@ -30,5 +30,4 @@ build-backend = "poetry.core.masonry.api"
 asyncio_default_fixture_loop_scope = "function"
 
 [mypy]
-plugins =
-    pydantic.mypy
+plugins = pydantic.mypy
