@@ -1,11 +1,9 @@
 from fastapi import APIRouter
 
-from app.domain.board.request import BoardInsertRequest, LoginRequest
+from app.domain.board.request import BoardInsertRequest
 from app.domain.board.response import (
     BoardInsertData,
-    BoardInsertResponse,
-    LogintData,
-    LoginResponse,
+    BoardInsertResponse
 )
 from app.domain.board.service import BoardService
 
@@ -18,13 +16,3 @@ async def board_insert(request: BoardInsertRequest) -> BoardInsertResponse:
 
     response_data = BoardInsertData(board_id=insertd_id)
     return BoardInsertResponse(detail="칠판 생성 완료.", data=response_data)
-
-
-@router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest) -> LoginResponse:
-    board = await BoardService.login(request)
-
-    response_data = LogintData(
-        board_id=board["board_id"], access_token=board["access_token"]
-    )
-    return LoginResponse(detail="로그인 완료", data=response_data)
