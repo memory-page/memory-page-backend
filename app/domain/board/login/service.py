@@ -6,8 +6,7 @@ from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.domain.board.login.request import LoginRequest
 from app.base.base_exception import BaseHTTPException
-from app.utils.security import verify_password
-from app.utils.jwt import create_access_token
+from app.utils.security import Security, JWT
 
 
 class BoardLoginService(BoardService):
@@ -34,7 +33,7 @@ class BoardLoginService(BoardService):
 
         return {
             "board_id": str(board._id),
-            "access_token": create_access_token(data={"board_id": str(board._id)}),
+            "access_token": await JWT.create_access_token(data={"board_id": str(board._id)}),
         }
         
     @classmethod
@@ -64,7 +63,7 @@ class BoardLoginService(BoardService):
                 detail="이름 또는 비밀번호가 올바르지 않습니다.",
             )
             
-        if not verify_password(password, board.password):
+        if not await Security.verify_password(password, board.password):
             raise BaseHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="이름 또는 비밀번호가 올바르지 않습니다.",

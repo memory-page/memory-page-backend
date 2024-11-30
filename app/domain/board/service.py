@@ -4,7 +4,7 @@ from app.domain.board.request import BoardInsertRequest
 from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.base.base_exception import BaseHTTPException
-from app.utils.security import hash_password
+from app.utils.security import Security
 
 
 class BoardService:
@@ -29,7 +29,7 @@ class BoardService:
 
         insert_board = BoardDocument(
             board_name=request.board_name,
-            password=hash_password(request.password),
+            password= await Security.hash_password(request.password),
             bg_num=request.bg_num,
             graduated_at=request.graduated_at,
         )
