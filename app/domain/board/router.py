@@ -22,9 +22,7 @@ async def board_insert(request: BoardInsertRequest) -> BoardInsertResponse:
 
 @router.post("/board/login", response_model=LoginResponse)
 async def login(request: LoginRequest) -> LoginResponse:
-    board = await BoardService.login(request)
+    board_id, access_token = await BoardService.login(request)
 
-    response_data = LogintData(
-        board_id=board["board_id"], access_token=board["access_token"]
-    )
+    response_data = LogintData(board_id=board_id, access_token=access_token)
     return LoginResponse(detail="로그인 완료", data=response_data)

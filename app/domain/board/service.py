@@ -1,5 +1,4 @@
 from fastapi import status
-from typing import Any
 
 from app.domain.board.request import BoardInsertRequest, LoginRequest
 from app.domain.board.collection import BoardCollection
@@ -39,7 +38,7 @@ class BoardService:
         return inserted_id
     
     @classmethod
-    async def login(cls, request: LoginRequest) -> dict[str, Any]:
+    async def login(cls, request: LoginRequest) -> tuple[str, str]:
         """
         로그인 처리하는 함수
 
@@ -59,10 +58,9 @@ class BoardService:
 
         board = await cls._validate_login(request.board_name, request.password)
 
-        return {
-            "board_id": str(board._id),
-            "access_token": await JWT.create_access_token(data={"board_id": str(board._id)}),
-        }
+        board_id = str(board._id)
+        access_token = await JWT.create_access_token(data={"board_id": board_id})
+        return board_id, access_token
 
     @classmethod
     async def _validate_board_name(cls, board_name: str) -> None:
