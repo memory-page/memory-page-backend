@@ -2,10 +2,11 @@ from fastapi import status
 import re
 from korcen import korcen
 
-from app.domain.board.request import BoardInsertRequest
+from app.domain.board.request import BoardInsertRequest, LoginRequest
 from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.base.base_exception import BaseHTTPException
+from app.utils.security import Security, JWT
 
 
 class BoardService:
@@ -30,13 +31,38 @@ class BoardService:
 
         insert_board = BoardDocument(
             board_name=request.board_name,
-            password=request.password,
+            password= await Security.hash_password(request.password),
             bg_num=request.bg_num,
             graduated_at=request.graduated_at,
         )
 
         inserted_id = await BoardCollection.insert_board(document=insert_board)
         return inserted_id
+    
+    @classmethod
+    async def login(cls, request: LoginRequest) -> tuple[str, str]:
+        """
+        로그인 처리하는 함수
+
+        Parameter
+        ---
+        request: LoginRequest, 로그인 요청 정보
+
+        Return
+        ---
+        dict, 로그인 응답 데이터 (딕셔너리 형태로 반환)
+
+        Exception
+        ---
+        401: 이름 또는 비밀번호가 올바르지 않습니다.
+        """
+        await cls._validate_password(password=request.password)
+
+        board = await cls._validate_login(request.board_name, request.password)
+
+        board_id = str(board._id)
+        access_token = await JWT.create_access_token(data={"board_id": board_id})
+        return board_id, access_token
 
     @classmethod
     async def _length_checker(cls, board_name: str) -> None:
@@ -160,3 +186,39 @@ class BoardService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="비밀번호는 최소 4자 이상이어야 합니다.",
             )
+            
+    @classmethod
+    async def _validate_login(cls, board_name: str, password: str) -> BoardDocument:
+        """
+        로그인 가능 여부를 확인하는 함수
+        - 보드 이름 유효성 확인
+        - 비밀번호 유효성 확인
+
+        Parameter
+        ---
+        board_name: str, 보드 이름
+        password: str, 요청된 비밀번호
+
+        Return
+        ---
+        BoardDocument, 보드 문서 객체
+
+        Exception
+        ---
+        401: 보드 이름 또는 비밀번호가 올바르지 않으면 예외 발생
+        """
+        board = await BoardCollection.find_board_by_name(board_name)
+        if not board:
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="이름 또는 비밀번호가 올바르지 않습니다.",
+            )
+            
+        if not await Security.verify_password(password, board.password):
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="이름 또는 비밀번호가 올바르지 않습니다.",
+            )
+
+        return board
+    
