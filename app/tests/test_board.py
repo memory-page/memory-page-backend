@@ -103,9 +103,31 @@ async def test_post_board_can_not_use_bad_word() -> None:
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+async def test_post_board_password_OK() -> None:
+    # Given
+    password = "1004"
+
+    # When
+    response, mock_board_dto = await mock_create_board(password=password)
+
+    # Then
+    assert response.status_code == status.HTTP_200_OK
+
+
 async def test_post_board_space_password() -> None:
     # Given
     password = "space yes"
+
+    # When
+    response, mock_board_dto = await mock_create_board(password=password)
+
+    # Then
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+async def test_post_board_password_too_short() -> None:
+    # Given
+    password = "sho"
 
     # When
     response, mock_board_dto = await mock_create_board(password=password)

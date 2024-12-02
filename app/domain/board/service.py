@@ -117,7 +117,11 @@ class BoardService:
     async def _validate_password(cls, password: str) -> None:
         """
         칠판 비밀번호 유효성 검사 함수
-        1. 띄어쓰기 없는지 확인
+
+        조건
+            - 띄어쓰기 금지
+            - 영어, 숫자, 특수문자만 허용
+            - 최소 4자 이상
 
         Parameter
         ---
@@ -129,11 +133,30 @@ class BoardService:
 
         Exception
         ---
-        409: 비밀번호에는 띄어쓰기를 사용할 수 없습니다.
+        400: 비밀번호는 띄어쓰기를 사용할 수 없습니다.
+        400: 비밀번호는 영어, 숫자, 특수문자만 사용 가능합니다.
+        400: 비밀번호는 최소 4자 이상이어야 합니다.
         """
 
+        # 띄어쓰기 사용 금지
         if " " in password:
             raise BaseHTTPException(
-                status_code=status.HTTP_409_CONFLICT,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="비밀번호에는 띄어쓰기를 사용할 수 없습니다.",
+            )
+
+        # 영어, 숫자, 특수문자만 허용
+        if not re.fullmatch(
+            r"^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$", password
+        ):
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="비밀번호는 영어, 숫자, 특수문자만 사용할 수 있습니다.",
+            )
+
+        # 최소 4자 이상
+        if len(password) < 4:
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="비밀번호는 최소 4자 이상이어야 합니다.",
             )
