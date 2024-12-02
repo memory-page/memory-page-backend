@@ -9,3 +9,12 @@ class BoardInsertData(BaseModel):
 
 class BoardInsertResponse(BaseResponseModel):
     data: BoardInsertData
+
+
+class LogintData(BaseModel):
+    board_id: str
+    access_token: str
+
+
+class LoginResponse(BaseResponseModel):
+    data: LogintData
