@@ -4,6 +4,7 @@ import uvicorn
 from typing import Any, Dict
 
 from app.domain.board.router import router as board_router
+from app.domain.memo.router import router as memo_router
 
 app = FastAPI()
 
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router=board_router)
+app.include_router(router=memo_router)
 
 
 @app.get("/")

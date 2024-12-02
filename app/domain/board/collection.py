@@ -52,3 +52,20 @@ class BoardCollection:
         result = await cls._collection.find_one(filter={"board_name": board_name})
 
         return cls._parse(result) if result else None
+    
+    @classmethod
+    async def find_board_by_id(cls, board_id: int) -> BoardDocument | None:
+        """
+        칠판 아이디로 보드를 조회하는 함수
+
+        Parameter
+        ---
+        board_id: int, 칠판 아이디
+
+        Return
+        ---
+        삽입된 칠판 문서
+        """
+        result = await cls._collection.find_one(filter={"_id": board_id})
+
+        return cls._parse(result) if result else None

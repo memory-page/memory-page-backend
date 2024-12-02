@@ -222,3 +222,12 @@ class BoardService:
 
         return board
     
+    @classmethod
+    async def _validate_board_id(cls, board_id: str) -> None:
+       
+        result = await BoardCollection.find_board_by_id(board_id=board_id)
+        if result is None:
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="존재하지 않는 칠판입니다.",
+            )
