@@ -1,8 +1,13 @@
 from fastapi import status
 import re
 from korcen import korcen
+from datetime import datetime
 
-from app.domain.board.request import BoardInsertRequest, LoginRequest
+from app.domain.board.request import (
+    BoardInsertRequest,
+    LoginRequest,
+    BoardValidateRequest,
+)
 from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.base.base_exception import BaseHTTPException
@@ -29,16 +34,18 @@ class BoardService:
         # 비밀번호 유효성 확인
         await cls._validate_password(password=request.password)
 
+        graduated_at = await cls._validate_date_str(request.graduated_at)
+
         insert_board = BoardDocument(
             board_name=request.board_name,
-            password= await Security.hash_password(request.password),
+            password=await Security.hash_password(request.password),
             bg_num=request.bg_num,
-            graduated_at=request.graduated_at,
+            graduated_at=graduated_at,
         )
 
         inserted_id = await BoardCollection.insert_board(document=insert_board)
         return inserted_id
-    
+
     @classmethod
     async def login(cls, request: LoginRequest) -> tuple[str, str]:
         """
@@ -77,7 +84,7 @@ class BoardService:
             )
 
     @classmethod
-    async def _validate_board_name(cls, board_name: str) -> None:
+    async def _validate_board_name(cls, board_name: str) -> bool:
         """
         칠판 이름 유효성 검사 함수
 
@@ -94,7 +101,7 @@ class BoardService:
 
         Return
         ---
-        None
+        : bool, 검사 통과 표시
 
         Exception
         ---
@@ -102,7 +109,7 @@ class BoardService:
         400: 이름이 너무 짧습니다.
         400: 이름이 너무 깁니다.
         400: 이름의 앞과 뒤는 공백일 수 없습니다.
-        400: 한글, 영어, 숫자, 특수문자만 사용할 수 있습니다.
+        400: 이름은 한글, 영어, 숫자, 특수문자만 사용할 수 있습니다.
         400: 이름에 비속어는 사용할 수 없습니다.
         """
         # 중복 이름 금지
@@ -129,7 +136,7 @@ class BoardService:
         ):
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="한글, 영어, 숫자, 특수문자만 사용할 수 있습니다.",
+                detail="이름은 한글, 영어, 숫자, 특수문자만 사용할 수 있습니다.",
             )
 
         # 비속어 금지, Reference: https://github.com/Tanat05/korcen
@@ -139,8 +146,10 @@ class BoardService:
                 detail="이름에 비속어는 사용할 수 없습니다.",
             )
 
+        return True
+
     @classmethod
-    async def _validate_password(cls, password: str) -> None:
+    async def _validate_password(cls, password: str) -> bool:
         """
         칠판 비밀번호 유효성 검사 함수
 
@@ -155,7 +164,7 @@ class BoardService:
 
         Return
         ---
-        None
+        : bool, 검사 통과 여부
 
         Exception
         ---
@@ -186,7 +195,9 @@ class BoardService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="비밀번호는 최소 4자 이상이어야 합니다.",
             )
-            
+
+        return True
+
     @classmethod
     async def _validate_login(cls, board_name: str, password: str) -> BoardDocument:
         """
@@ -213,7 +224,7 @@ class BoardService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="이름 또는 비밀번호가 올바르지 않습니다.",
             )
-            
+
         if not await Security.verify_password(password, board.password):
             raise BaseHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -221,7 +232,60 @@ class BoardService:
             )
 
         return board
-    
+
+    @classmethod
+    async def board_name_validate(cls, request: BoardValidateRequest) -> bool:
+        """
+        유저 이름 검증하는 함수
+
+        Parameter
+        ---
+        board_name: str, 보드 이름
+
+        Return
+        ---
+        : bool, 이름 검증 성공 여부(성공시 True 반환, 실패시 에러 발생)
+
+        Exception
+        ---
+        None
+        """
+        name_validate_result = await cls._validate_board_name(
+            board_name=request.board_name
+        )
+        password_validate_result = await cls._validate_password(
+            password=request.password
+        )
+
+        return name_validate_result is True and password_validate_result is True
+
+    @classmethod
+    async def _validate_date_str(cls, date_str: str) -> datetime:
+        """
+        문자열을 datetime 객체로 바꿔주는 함수
+
+        Parameter
+        ---
+        date_str: str, 문자열 객체(yyyy-mm-dd 형식이어야 함)
+
+        Return
+        ---
+        date_time: datetime, datetime 객체
+
+        Exception
+        ---
+        400: 날짜 문자열의 형식이 올바르지 않습니다.
+        """
+        try:
+            date_time = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="날짜 문자열의 형식이 올바르지 않습니다.",
+            )
+
+        return date_time
+
     @classmethod
     async def _validate_board_id(cls, board_id: str) -> None:
        
