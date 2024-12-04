@@ -1,9 +1,11 @@
 from typing import cast
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from jose import jwt, exceptions
+from fastapi import status
 
 from app.base.settings import settings
+from app.base.base_exception import BaseHTTPException
 
 
 class Security:
@@ -34,3 +36,23 @@ class JWT:
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
         )
         return encoded_jwt
+    
+    @classmethod
+    def decode_access_token(cls, token: str) -> dict:
+        try:
+            decoded = jwt.decode(
+                token,
+                settings.JWT_SECRET_KEY,
+                algorithms=[settings.JWT_ALGORITHM],
+            )
+            return decoded
+        except exceptions.ExpiredSignatureError:
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="토큰이 만료되었습니다.",
+            )
+        except exceptions.JWTError:
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="유효하지 않은 토큰입니다.",
+            )

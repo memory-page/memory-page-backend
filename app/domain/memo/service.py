@@ -46,7 +46,7 @@ class MemoService:
         return inserted_id
     
     @classmethod
-    async def get_memo(cls, memo_id: str) -> tuple[str, str]:
+    async def get_memo(cls, memo_id: str, token: dict) -> tuple[str, str]:
         """
         메모 ID를 사용해 작성자와 내용을 조회하는 함수
 
@@ -58,7 +58,9 @@ class MemoService:
         ---
         tuple[str, str], 메모의 작성자(author), 내용(content)
         """
+        token_board_id = await cls._validate_token_board_id(token)
         memo = await cls._validate_memo_id(memo_id)
+        await cls._validate_board_id_in_memo(memo_board_id=memo.board_id, token_board_id=token_board_id)
 
         return memo.author, memo.content
     
@@ -159,3 +161,52 @@ class MemoService:
             )
             
         return memo
+    
+    @classmethod
+    async def _validate_board_id_in_memo(cls, memo_board_id: str, token_board_id: str) -> None:
+        """
+        메모의 board_id와 JWT에서 추출한 board_id의 일치 여부를 검증하는 함수
+
+        Parameters
+        ---
+        memo_board_id: str, 메모에 저장된 board_id
+        token_board_id: str, JWT 토큰에서 추출한 board_id
+
+        Return
+        ---
+        None
+
+        Exceptions
+        ---
+        403: 메모의 board_id와 JWT의 board_id가 일치하지 않을 경우
+        """
+        if memo_board_id != token_board_id:
+            raise BaseHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="메모가 요청한 board_id에 속하지 않습니다.",
+            )
+
+    @classmethod
+    async def _validate_token_board_id(cls, token: dict) -> str:
+        """
+        JWT에서 board_id를 추출하고 유효성을 검증하는 함수
+
+        Parameters
+        ---
+        token: dict, 디코딩된 JWT 토큰
+
+        Return
+        ---
+        str, JWT 토큰에서 추출한 board_id
+
+        Exceptions
+        ---
+        401: JWT 토큰에서 board_id가 없거나 유효하지 않을 경우
+        """
+        token_board_id = token.get("board_id")
+        if not token_board_id:
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="유효하지 않은 토큰입니다.",
+            )
+        return token_board_id
