@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.domain.memo.request import MemoInsertRequest
-from app.domain.memo.response import MemoInsertData, MemoInsertResponse
+from app.domain.memo.response import MemoInsertData, MemoInsertResponse, MemoResponse, MemoData
 from app.domain.memo.service import MemoService
 
 router = APIRouter()
@@ -16,3 +16,11 @@ async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertRe
 
     response_data = MemoInsertData(memo_id=inserted_id)
     return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)
+
+
+@router.get(path="/memo/{memo_id}", response_model=MemoResponse)
+async def memo_get(memo_id: str) -> MemoResponse:
+    author, content = await MemoService.get_memo(memo_id=memo_id)
+
+    response_data = MemoData(author=author, content=content)
+    return MemoResponse(detail="메모지 조회.", data=response_data)

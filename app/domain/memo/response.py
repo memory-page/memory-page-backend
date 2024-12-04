@@ -9,3 +9,12 @@ class MemoInsertData(BaseModel):
 
 class MemoInsertResponse(BaseResponseModel):
     data: MemoInsertData
+
+
+class MemoData(BaseModel):
+    author: str
+    content: str
+
+
+class MemoResponse(BaseResponseModel):
+    data: MemoData

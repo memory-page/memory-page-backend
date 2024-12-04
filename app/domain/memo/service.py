@@ -46,6 +46,23 @@ class MemoService:
         return inserted_id
     
     @classmethod
+    async def get_memo(cls, memo_id: str) -> tuple[str, str]:
+        """
+        메모 ID를 사용해 작성자와 내용을 조회하는 함수
+
+        Parameters
+        ---
+        memo_id: str, 조회할 메모의 ID
+
+        Return
+        ---
+        tuple[str, str], 메모의 작성자(author), 내용(content)
+        """
+        memo = await cls._validate_memo_id(memo_id)
+
+        return memo.author, memo.content
+    
+    @classmethod
     async def _validate_content(cls, content: str) -> None:
         """
         메모 내용의 유효성을 검사하는 함수
@@ -116,3 +133,29 @@ class MemoService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="이름은 1자 이상 10자 이하로 작성해야 합니다."
             )
+            
+    @classmethod
+    async def _validate_memo_id(cls, memo_id: str) -> MemoDocument:
+        """
+        메모 ID의 유효성을 확인하고 해당 메모를 반환하는 함수
+
+        Parameters
+        ---
+        memo_id: str, 확인할 메모의 ID
+        
+        Return
+        ---
+        MemoDocument, 유효한 메모 데이터 객체
+
+        Exceptions
+        ---
+        401: 존재하지 않은 메모 ID일 경우
+        """
+        memo = await MemoCollection.find_memo_by_id(memo_id=memo_id)
+        if not memo:
+            raise BaseHTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="존재하지 않은 메모입니다.",
+            )
+            
+        return memo
