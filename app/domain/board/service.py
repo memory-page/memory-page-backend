@@ -1,6 +1,7 @@
 from fastapi import status
 import re
 from korcen import korcen
+from datetime import datetime
 
 from app.domain.board.request import (
     BoardInsertRequest,
@@ -33,11 +34,13 @@ class BoardService:
         # 비밀번호 유효성 확인
         await cls._validate_password(password=request.password)
 
+        graduated_at = await cls._validate_date_str(request.graduated_at)
+
         insert_board = BoardDocument(
             board_name=request.board_name,
             password=await Security.hash_password(request.password),
             bg_num=request.bg_num,
-            graduated_at=request.graduated_at,
+            graduated_at=graduated_at,
         )
 
         inserted_id = await BoardCollection.insert_board(document=insert_board)
@@ -255,3 +258,30 @@ class BoardService:
         )
 
         return name_validate_result is True and password_validate_result is True
+
+    @classmethod
+    async def _validate_date_str(cls, date_str: str) -> datetime:
+        """
+        문자열을 datetime 객체로 바꿔주는 함수
+
+        Parameter
+        ---
+        date_str: str, 문자열 객체(yyyy-mm-dd 형식이어야 함)
+
+        Return
+        ---
+        date_time: datetime, datetime 객체
+
+        Exception
+        ---
+        400: 날짜 문자열의 형식이 올바르지 않습니다.
+        """
+        try:
+            date_time = datetime.strptime(date_str, "%Y-%m-%d")
+        except ValueError:
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="날짜 문자열의 형식이 올바르지 않습니다.",
+            )
+
+        return date_time
