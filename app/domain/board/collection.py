@@ -1,5 +1,6 @@
 import dataclasses
 from typing import Any
+from bson import ObjectId
 
 from app.db.database import db
 from app.domain.board.document import BoardDocument
@@ -66,6 +67,6 @@ class BoardCollection:
         ---
         삽입된 칠판 문서
         """
-        result = await cls._collection.find_one(filter={"_id": board_id})
+        result = await cls._collection.find_one(filter={"_id": ObjectId(board_id)})
 
         return cls._parse(result) if result else None
