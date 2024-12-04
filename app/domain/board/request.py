@@ -12,4 +12,8 @@ class BoardInsertRequest(BaseModel):
 class LoginRequest(BaseModel):
     board_name: str
     password: str
-    
+
+
+class BoardValidateRequest(BaseModel):
+    board_name: str
+    password: str

@@ -18,3 +18,11 @@ class LogintData(BaseModel):
 
 class LoginResponse(BaseResponseModel):
     data: LogintData
+
+
+class BoardValidateData(BaseModel):
+    is_pass: bool
+
+
+class BoardValidateResponse(BaseResponseModel):
+    data: BoardValidateData
