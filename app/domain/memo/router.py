@@ -7,18 +7,6 @@ from app.utils.security import JWT
 
 router = APIRouter()
 
-
-@router.post(path="/{board_id}/memo/",response_model=MemoInsertResponse)
-async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertResponse:
-    inserted_id = await MemoService.insert_memo(
-        board_id=board_id,
-        request=request
-    )
-
-    response_data = MemoInsertData(memo_id=inserted_id)
-    return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)
-
-
 @router.get(path="/memo/{memo_id}", response_model=MemoResponse)
 async def memo_get(memo_id: str,  token: str = Depends(JWT.decode_access_token)) -> MemoResponse:
     author, content = await MemoService.get_memo(memo_id=memo_id, token=token)
