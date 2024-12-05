@@ -42,9 +42,7 @@ class MemoService:
         return inserted_id
 
     @classmethod
-    async def get_memo(
-        cls, memo_id: str, token: JWT.DecodedAccessToken
-    ) -> tuple[str, str]:
+    async def get_memo(cls, memo_id: str, token: JWT.Payload) -> tuple[str, str]:
         """
         메모 ID를 사용해 작성자와 내용을 조회하는 함수
 

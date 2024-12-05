@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get(path="/memo/{memo_id}", response_model=MemoResponse)
 async def memo_get(
-    memo_id: str, token: JWT.DecodedAccessToken = Depends(JWT.decode_access_token)
+    memo_id: str, token: JWT.Payload = Depends(JWT.decode_access_token)
 ) -> MemoResponse:
     author, content = await MemoService.get_memo(memo_id=memo_id, token=token)
 

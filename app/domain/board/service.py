@@ -64,7 +64,7 @@ class BoardService:
         board = await cls._validate_login(request.board_name, request.password)
 
         board_id = str(board._id)
-        access_token = await JWT.create_access_token(data={"board_id": board_id})
+        access_token = await JWT.create_access_token(board_id)
         return board_id, access_token
 
     @classmethod

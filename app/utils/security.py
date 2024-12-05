@@ -22,20 +22,19 @@ class Security:
 
 
 class JWT:
-    class DecodedAccessToken(BaseModel):
+    class Payload(BaseModel):
         board_id: str
         exp: float
 
     @classmethod
-    async def create_access_token(cls, data: dict[str, str]) -> str:
-
-        to_encode = data.copy()
+    async def create_access_token(cls, board_id: str) -> str:
 
         KST = timezone(timedelta(hours=9))
         expire = datetime.now(KST) + timedelta(
             minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
         )
-        to_encode.update({"exp": expire.timestamp()})
+
+        to_encode = cls.Payload(board_id=board_id, exp=expire.timestamp()).model_dump()
 
         encoded_jwt = jwt.encode(
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
@@ -43,14 +42,14 @@ class JWT:
         return cast(str, encoded_jwt)
 
     @classmethod
-    def decode_access_token(cls, token: str) -> DecodedAccessToken:
+    def decode_access_token(cls, token: str) -> Payload:
         try:
             decoded = jwt.decode(
                 token,
                 settings.JWT_SECRET_KEY,
                 algorithms=[settings.JWT_ALGORITHM],
             )
-            return cls.DecodedAccessToken.model_validate(decoded)
+            return cls.Payload.model_validate(decoded)
         except exceptions.ExpiredSignatureError:
             raise BaseHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
