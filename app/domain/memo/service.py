@@ -147,12 +147,12 @@ class MemoService:
 
         Exceptions
         ---
-        400: 존재하지 않은 메모 ID일 경우
+        404: 존재하지 않은 메모 ID일 경우
         """
         memo = await MemoCollection.find_memo_by_id(memo_id=memo_id)
         if not memo:
             raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="존재하지 않은 메모입니다.",
             )
             

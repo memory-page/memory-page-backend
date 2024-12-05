@@ -293,12 +293,12 @@ class BoardService:
 
         Exceptions
         ---
-        400: board_id에 해당하는 칠판이 존재하지 않을 경우
+        404: board_id에 해당하는 칠판이 존재하지 않을 경우
         """
         result = await BoardCollection.find_board_by_id(board_id=board_id)
         if result is None:
             raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="존재하지 않는 칠판입니다.",
             )
     
