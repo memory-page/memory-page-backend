@@ -12,11 +12,17 @@ pkill -f "gunicorn" || echo "기존 프로세스가 실행 중이 아닙니다."
 
 # 새로운 Gunicorn 서버 실행
 echo "새로운 웹 서버를 시작합니다..."
-poetry install --no-root
-nohup poetry run gunicorn app.main:app \
+
+/home/hadoop/anaconda3/bin/poetry install --no-root
+/home/hadoop/anaconda3/bin/poetry run gunicorn app.main:app \
     -w 7 \
     -k uvicorn.workers.UvicornWorker \
-    --bind 0.0.0.0:5012 &
+    --bind 0.0.0.0:5012 \
+    --access-logfile ./gunicorn-access.log \
+    --error-logfile ./gunicorn-error.log \
+    --capture-output \
+    --log-level info \
+    --daemon
 
 # 서버 실행 성공 여부 확인
 sleep 5
