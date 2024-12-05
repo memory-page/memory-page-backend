@@ -29,6 +29,7 @@ class MemoService:
         400: 작성자 이름이 유효하지 않을 경우
         400: 메모 내용이 유효하지 않을 경우
         """
+        await BoardService._validate_object_id(board_id=board_id)
         await BoardService._validate_board_id(board_id=board_id)
         
         await cls._validate_author(author=request.author)
@@ -59,6 +60,7 @@ class MemoService:
         tuple[str, str], 메모의 작성자(author), 내용(content)
         """
         token_board_id = await cls._validate_token_board_id(token)
+        await cls._validate_object_id(memo_id=memo_id)
         memo = await cls._validate_memo_id(memo_id)
         await cls._validate_board_id_in_memo(memo_board_id=memo.board_id, token_board_id=token_board_id)
 
@@ -210,3 +212,22 @@ class MemoService:
                 detail="유효하지 않은 토큰입니다.",
             )
         return token_board_id
+    
+    @classmethod
+    async def _validate_object_id(cls, memo_id: str) -> None:
+        """
+        memo_id가 ObjectId형식인지 검증하는 함수
+
+        Parameters
+        ---
+        memo_id: str, 검증할 메모 ID
+
+        Exceptions
+        ---
+        400: memo_id가 24자가 아니거나 유효한 16진수가 아닐 경우
+        """
+        if len(memo_id) != 24 or not all(c in '0123456789abcdefABCDEF' for c in memo_id):
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="존재하지 않는 메모입니다.",
+            )
