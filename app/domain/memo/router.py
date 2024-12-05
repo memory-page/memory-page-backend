@@ -8,7 +8,7 @@ from app.utils.security import JWT
 router = APIRouter()
 
 
-@router.post(path="/{board_id}/memo/")
+@router.post(path="/{board_id}/memo/",response_model=MemoInsertResponse)
 async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertResponse:
     inserted_id = await MemoService.insert_memo(
         board_id=board_id,

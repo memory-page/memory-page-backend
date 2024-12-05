@@ -55,7 +55,7 @@ class BoardCollection:
         return cls._parse(result) if result else None
     
     @classmethod
-    async def find_board_by_id(cls, board_id: int) -> BoardDocument | None:
+    async def find_board_by_id(cls, board_id: str) -> BoardDocument | None:
         """
         칠판 아이디로 보드를 조회하는 함수
 
