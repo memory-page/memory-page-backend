@@ -3,6 +3,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, exceptions
 from fastapi import status
+from pydantic import BaseModel, ValidationError
 
 from app.base.settings import settings
 from app.base.base_exception import BaseHTTPException
@@ -21,6 +22,10 @@ class Security:
 
 
 class JWT:
+    class DecodedAccessToken(BaseModel):
+        board_id: str
+        exp: float
+
     @classmethod
     async def create_access_token(cls, data: dict[str, str]) -> str:
 
@@ -38,14 +43,14 @@ class JWT:
         return encoded_jwt
     
     @classmethod
-    def decode_access_token(cls, token: str) -> dict:
+    def decode_access_token(cls, token: str) -> DecodedAccessToken:
         try:
             decoded = jwt.decode(
                 token,
                 settings.JWT_SECRET_KEY,
                 algorithms=[settings.JWT_ALGORITHM],
             )
-            return decoded
+            return cls.DecodedAccessToken.model_validate(decoded)
         except exceptions.ExpiredSignatureError:
             raise BaseHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,4 +60,9 @@ class JWT:
             raise BaseHTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="유효하지 않은 토큰입니다.",
+            )
+        except ValidationError:
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="토큰 데이터가 유효하지 않습니다.",
             )
