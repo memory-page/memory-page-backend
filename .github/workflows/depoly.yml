@@ -1,0 +1,35 @@
+name: CI/CD Pipeline for Deployment
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 코드 체크아웃
+    - name: Check out the repository
+      uses: actions/checkout@v3
+
+    # 2. SSH 접속 준비
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+    # 3. 서버에서 배포 스크립트 실행
+    - name: Deploy to Remote Server
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          cd /path/to/your/project
+          git fetch origin dev
+          git reset --hard origin/dev
+          chmod +x start.sh
+          ./start.sh
+        EOF
