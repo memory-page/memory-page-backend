@@ -47,12 +47,9 @@ async def board_name_validate(request: BoardValidateRequest) -> BoardValidateRes
     )
 
 
-@router.post(path="/{board_id}/memo/",response_model=MemoInsertResponse)
+@router.post(path="/{board_id}/memo/", response_model=MemoInsertResponse)
 async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertResponse:
-    inserted_id = await MemoService.insert_memo(
-        board_id=board_id,
-        request=request
-    )
+    inserted_id = await MemoService.insert_memo(board_id=board_id, request=request)
 
     response_data = MemoInsertData(memo_id=inserted_id)
     return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)

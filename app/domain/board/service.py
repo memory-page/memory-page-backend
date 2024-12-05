@@ -301,7 +301,7 @@ class BoardService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="존재하지 않는 칠판입니다.",
             )
-    
+
     @classmethod
     async def _validate_object_id(cls, board_id: str) -> None:
         """
@@ -315,7 +315,9 @@ class BoardService:
         ---
         400: board_id가 24자가 아니거나 유효한 16진수가 아닐 경우
         """
-        if len(board_id) != 24 or not all(c in '0123456789abcdefABCDEF' for c in board_id):
+        if len(board_id) != 24 or not all(
+            c in "0123456789abcdefABCDEF" for c in board_id
+        ):
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="존재하지 않는 칠판입니다.",

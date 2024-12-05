@@ -53,7 +53,7 @@ class BoardCollection:
         result = await cls._collection.find_one(filter={"board_name": board_name})
 
         return cls._parse(result) if result else None
-    
+
     @classmethod
     async def find_board_by_id(cls, board_id: str) -> BoardDocument | None:
         """

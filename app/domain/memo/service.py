@@ -11,7 +11,7 @@ from app.base.base_exception import BaseHTTPException
 
 class MemoService:
     @classmethod
-    async def insert_memo(cls, board_id:str, request: MemoInsertRequest) -> str:
+    async def insert_memo(cls, board_id: str, request: MemoInsertRequest) -> str:
         """
         메모를 생성하는 서비스 함수
 
@@ -26,7 +26,7 @@ class MemoService:
         """
         await BoardService._validate_object_id(board_id=board_id)
         await BoardService._validate_board_id(board_id=board_id)
-        
+
         await cls._validate_author(author=request.author)
         await cls._validate_content(content=request.content)
 
@@ -35,12 +35,12 @@ class MemoService:
             locate_idx=request.locate_idx,
             bg_num=request.bg_num,
             author=request.author,
-            content=request.content
+            content=request.content,
         )
 
         inserted_id = await MemoCollection.insert_memo(document=insert_memo)
         return inserted_id
-    
+
     @classmethod
     async def get_memo(
         cls, memo_id: str, token: JWT.DecodedAccessToken
@@ -88,14 +88,14 @@ class MemoService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="내용에 비속어는 사용할 수 없습니다.",
             )
-        
+
         # 내용 길이 검사 (임시로 길이 지정)
-        if  len(content) < 1 or len(content) > 30:
+        if len(content) < 1 or len(content) > 30:
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="내용은 1자 이상 30자 이하로 작성해야 합니다."
+                detail="내용은 1자 이상 30자 이하로 작성해야 합니다.",
             )
-            
+
     @classmethod
     async def _validate_author(cls, author: str) -> None:
         """
@@ -121,21 +121,21 @@ class MemoService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="이름에 비속어는 사용할 수 없습니다.",
             )
-            
+
         # 앞 뒤 공백 금지
         if author[0] == " " or author[-1] == " ":
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="이름의 앞과 뒤는 공백일 수 없습니다.",
             )
-            
+
         # 이름 길이 검사 (임시로 길이 지정)
         if len(author) < 1 or len(author) > 10:
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름은 1자 이상 10자 이하로 작성해야 합니다."
+                detail="이름은 1자 이상 10자 이하로 작성해야 합니다.",
             )
-            
+
     @classmethod
     async def _validate_memo_id(cls, memo_id: str) -> MemoDocument:
         """
@@ -144,7 +144,7 @@ class MemoService:
         Parameters
         ---
         memo_id: str, 확인할 메모의 ID
-        
+
         Return
         ---
         MemoDocument, 유효한 메모 데이터 객체
@@ -159,11 +159,13 @@ class MemoService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="존재하지 않은 메모입니다.",
             )
-            
+
         return memo
-    
+
     @classmethod
-    async def _validate_board_id_in_memo(cls, memo_board_id: str, token_board_id: str) -> None:
+    async def _validate_board_id_in_memo(
+        cls, memo_board_id: str, token_board_id: str
+    ) -> None:
         """
         메모의 board_id와 JWT에서 추출한 board_id의 일치 여부를 검증하는 함수
 
@@ -199,7 +201,9 @@ class MemoService:
         ---
         400: memo_id가 24자가 아니거나 유효한 16진수가 아닐 경우
         """
-        if len(memo_id) != 24 or not all(c in '0123456789abcdefABCDEF' for c in memo_id):
+        if len(memo_id) != 24 or not all(
+            c in "0123456789abcdefABCDEF" for c in memo_id
+        ):
             raise BaseHTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="존재하지 않는 메모입니다.",

@@ -37,7 +37,7 @@ class MemoCollection:
         result = await cls._collection.insert_one(document=insert_document)
 
         return str(result.inserted_id)
-    
+
     @classmethod
     async def find_memo_by_id(cls, memo_id: str) -> MemoDocument | None:
         """

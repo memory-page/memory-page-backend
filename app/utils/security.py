@@ -40,8 +40,8 @@ class JWT:
         encoded_jwt = jwt.encode(
             to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
         )
-        return encoded_jwt
-    
+        return cast(str, encoded_jwt)
+
     @classmethod
     def decode_access_token(cls, token: str) -> DecodedAccessToken:
         try:
