@@ -22,12 +22,6 @@ class MemoService:
         Return
         ---
         str, 생성된 메모의 ID
-            
-        Exceptions
-        ---
-        400: 게시판 ID가 유효하지 않을 경우
-        400: 작성자 이름이 유효하지 않을 경우
-        400: 메모 내용이 유효하지 않을 경우
         """
         await BoardService._validate_object_id(board_id=board_id)
         await BoardService._validate_board_id(board_id=board_id)
@@ -153,12 +147,12 @@ class MemoService:
 
         Exceptions
         ---
-        401: 존재하지 않은 메모 ID일 경우
+        400: 존재하지 않은 메모 ID일 경우
         """
         memo = await MemoCollection.find_memo_by_id(memo_id=memo_id)
         if not memo:
             raise BaseHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="존재하지 않은 메모입니다.",
             )
             

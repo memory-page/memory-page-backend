@@ -58,10 +58,6 @@ class BoardService:
         Return
         ---
         dict, 로그인 응답 데이터 (딕셔너리 형태로 반환)
-
-        Exception
-        ---
-        401: 이름 또는 비밀번호가 올바르지 않습니다.
         """
         await cls._validate_password(password=request.password)
 
@@ -288,7 +284,17 @@ class BoardService:
 
     @classmethod
     async def _validate_board_id(cls, board_id: str) -> None:
-       
+        """
+        board_id의 존재 여부를 검증하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Exceptions
+        ---
+        400: board_id에 해당하는 칠판이 존재하지 않을 경우
+        """
         result = await BoardCollection.find_board_by_id(board_id=board_id)
         if result is None:
             raise BaseHTTPException(
