@@ -14,6 +14,9 @@ from app.domain.board.response import (
     BoardValidateResponse,
 )
 from app.domain.board.service import BoardService
+from app.domain.memo.request import MemoInsertRequest
+from app.domain.memo.response import MemoInsertData, MemoInsertResponse
+from app.domain.memo.service import MemoService
 
 router = APIRouter()
 
@@ -42,3 +45,11 @@ async def board_name_validate(request: BoardValidateRequest) -> BoardValidateRes
     return BoardValidateResponse(
         detail="칠판 이름, 비밀번호 검증 성공", data=response_data
     )
+
+
+@router.post(path="/{board_id}/memo/", response_model=MemoInsertResponse)
+async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertResponse:
+    inserted_id = await MemoService.insert_memo(board_id=board_id, request=request)
+
+    response_data = MemoInsertData(memo_id=inserted_id)
+    return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)

@@ -58,17 +58,13 @@ class BoardService:
         Return
         ---
         dict, 로그인 응답 데이터 (딕셔너리 형태로 반환)
-
-        Exception
-        ---
-        401: 이름 또는 비밀번호가 올바르지 않습니다.
         """
         await cls._validate_password(password=request.password)
 
         board = await cls._validate_login(request.board_name, request.password)
 
         board_id = str(board._id)
-        access_token = await JWT.create_access_token(data={"board_id": board_id})
+        access_token = await JWT.create_access_token(board_id)
         return board_id, access_token
 
     @classmethod
@@ -285,3 +281,44 @@ class BoardService:
             )
 
         return date_time
+
+    @classmethod
+    async def _validate_board_id(cls, board_id: str) -> None:
+        """
+        board_id의 존재 여부를 검증하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Exceptions
+        ---
+        404: board_id에 해당하는 칠판이 존재하지 않을 경우
+        """
+        result = await BoardCollection.find_board_by_id(board_id=board_id)
+        if result is None:
+            raise BaseHTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="존재하지 않는 칠판입니다.",
+            )
+
+    @classmethod
+    async def _validate_object_id(cls, board_id: str) -> None:
+        """
+        board_id가 ObjectId형식인지 검증하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Exceptions
+        ---
+        400: board_id가 24자가 아니거나 유효한 16진수가 아닐 경우
+        """
+        if len(board_id) != 24 or not all(
+            c in "0123456789abcdefABCDEF" for c in board_id
+        ):
+            raise BaseHTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="존재하지 않는 칠판입니다.",
+            )
