@@ -47,7 +47,7 @@ async def board_name_validate(request: BoardValidateRequest) -> BoardValidateRes
     )
 
 
-@router.post(path="/{board_id}/memo/", response_model=MemoInsertResponse)
+@router.post(path="/board/{board_id}/memo/", response_model=MemoInsertResponse)
 async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertResponse:
     inserted_id = await MemoService.insert_memo(board_id=board_id, request=request)
 
