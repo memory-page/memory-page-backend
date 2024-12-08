@@ -1,4 +1,3 @@
-from fastapi import status
 from korcen import korcen
 
 from app.domain.memo.request import MemoInsertRequest
@@ -6,7 +5,15 @@ from app.domain.memo.collection import MemoCollection
 from app.domain.memo.document import MemoDocument
 from app.domain.board.service import BoardService
 from app.utils.security import JWT
-from app.core.exception import *
+from app.core.exception import (
+    CanNotUseBadWordInContentException,
+    CanNotUseBadWordInNameException,
+    CanNotUseSpaceFrontEndBackInNameException,
+    ContentLengthException,
+    DoesNotExistMemoException,
+    NotEqualMemoIdAndBoardIdException,
+    ValidateAuthorLengthException,
+)
 
 
 class MemoService:

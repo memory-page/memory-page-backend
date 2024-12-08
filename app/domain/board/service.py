@@ -1,4 +1,3 @@
-from fastapi import status
 import re
 from korcen import korcen
 from datetime import datetime
@@ -11,7 +10,20 @@ from app.domain.board.request import (
 from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.utils.security import Security, JWT
-from app.core.exception import *
+from app.core.exception import (
+    CanNotUseBadWordInNameException,
+    CanNotUseSpaceFrontEndBackInNameException,
+    CanNotUseSpaceInPasswordException,
+    DoesNotExistBoardException,
+    DuplicateNameException,
+    MinLengthInPasswordException,
+    OnlyKrEngNumSpecialInNameException,
+    TooLongNameException,
+    TooShortNameException,
+    ValidateDateStrException,
+    WrongNameOrPasswordInValidateLoginException,
+)
+
 
 class BoardService:
     @classmethod
