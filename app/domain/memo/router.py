@@ -6,11 +6,16 @@ from app.domain.memo.response import (
 )
 from app.domain.memo.service import MemoService
 from app.utils.security import JWT
+from app.core.swagger_responses import get_memo_momoid_responses
 
 router = APIRouter()
 
 
-@router.get(path="/memo/{memo_id}", response_model=MemoResponse)
+@router.get(
+    path="/memo/{memo_id}",
+    response_model=MemoResponse,
+    responses=get_memo_momoid_responses(),
+)
 async def memo_get(
     memo_id: str = Path(..., description="메모 아이디", examples=["uuid"]),
     token: JWT.Payload = Depends(JWT.decode_access_token),
