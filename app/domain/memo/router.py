@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 
 from app.domain.memo.response import (
     MemoResponse,
@@ -12,7 +12,8 @@ router = APIRouter()
 
 @router.get(path="/memo/{memo_id}", response_model=MemoResponse)
 async def memo_get(
-    memo_id: str, token: JWT.Payload = Depends(JWT.decode_access_token)
+    memo_id: str = Path(..., description="메모 아이디", examples=["uuid"]),
+    token: JWT.Payload = Depends(JWT.decode_access_token),
 ) -> MemoResponse:
     author, content = await MemoService.get_memo(memo_id=memo_id, token=token)
 
