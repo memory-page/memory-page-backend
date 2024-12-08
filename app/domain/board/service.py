@@ -10,9 +10,8 @@ from app.domain.board.request import (
 )
 from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
-from app.base.base_exception import BaseHTTPException
 from app.utils.security import Security, JWT
-
+from app.core.exception import *
 
 class BoardService:
     @classmethod
@@ -71,13 +70,9 @@ class BoardService:
     async def _length_checker(cls, board_name: str) -> None:
         max_len = 16 if re.match(r"^[a-zA-Z]+$", board_name) else 8
         if not 2 <= len(board_name):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="이름이 너무 짧습니다."
-            )
+            raise TooShortNameException()
         elif not len(board_name) <= max_len:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="이름이 너무 깁니다."
-            )
+            raise TooLongNameException()
 
     @classmethod
     async def _validate_board_name(cls, board_name: str) -> bool:
@@ -111,36 +106,24 @@ class BoardService:
         # 중복 이름 금지
         result = await BoardCollection.find_board_by_name(board_name=board_name)
         if result is not None:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="중복된 이름이 존재합니다.",
-            )
+            raise DuplicateNameException()
 
         # 최소 2자 ~ 최대(한글 8자, 영어 16자, 혼용일 경우 8자)
         await cls._length_checker(board_name=board_name)
 
         # 앞 뒤 공백 금지
         if board_name[0] == " " or board_name[-1] == " ":
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름의 앞과 뒤는 공백일 수 없습니다.",
-            )
+            raise CanNotUseSpaceFrontEndBackInNameException()
 
         # 한글, 영어, 숫자, 특수문자만 허용
         if not re.match(
             r"^[가-힣a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$", board_name
         ):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름은 한글, 영어, 숫자, 특수문자만 사용할 수 있습니다.",
-            )
+            raise OnlyKrEngNumSpecialInNameException()
 
         # 비속어 금지, Reference: https://github.com/Tanat05/korcen
         if korcen.check(board_name):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름에 비속어는 사용할 수 없습니다.",
-            )
+            raise CanNotUseBadWordInNameException()
 
         return True
 
@@ -171,26 +154,17 @@ class BoardService:
 
         # 띄어쓰기 사용 금지
         if " " in password:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="비밀번호에는 띄어쓰기를 사용할 수 없습니다.",
-            )
+            raise CanNotUseSpaceInPasswordException()
 
         # 영어, 숫자, 특수문자만 허용
         if not re.fullmatch(
             r"^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$", password
         ):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="비밀번호는 영어, 숫자, 특수문자만 사용할 수 있습니다.",
-            )
+            raise CanNotUseSpaceInPasswordException()
 
         # 최소 4자 이상
         if len(password) < 4:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="비밀번호는 최소 4자 이상이어야 합니다.",
-            )
+            raise MinLengthInPasswordException()
 
         return True
 
@@ -216,16 +190,10 @@ class BoardService:
         """
         board = await BoardCollection.find_board_by_name(board_name)
         if not board:
-            raise BaseHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="이름 또는 비밀번호가 올바르지 않습니다.",
-            )
+            raise WrongNameOrPasswordInValidateLoginException()
 
         if not await Security.verify_password(password, board.password):
-            raise BaseHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="이름 또는 비밀번호가 올바르지 않습니다.",
-            )
+            raise WrongNameOrPasswordInValidateLoginException()
 
         return board
 
@@ -275,10 +243,7 @@ class BoardService:
         try:
             date_time = datetime.strptime(date_str, "%Y-%m-%d")
         except ValueError:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="날짜 문자열의 형식이 올바르지 않습니다.",
-            )
+            raise ValidateDateStrException()
 
         return date_time
 
@@ -297,10 +262,7 @@ class BoardService:
         """
         result = await BoardCollection.find_board_by_id(board_id=board_id)
         if result is None:
-            raise BaseHTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="존재하지 않는 칠판입니다.",
-            )
+            raise DoesNotExistBoardException()
 
     @classmethod
     async def _validate_object_id(cls, board_id: str) -> None:
@@ -318,7 +280,4 @@ class BoardService:
         if len(board_id) != 24 or not all(
             c in "0123456789abcdefABCDEF" for c in board_id
         ):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="존재하지 않는 칠판입니다.",
-            )
+            raise DoesNotExistBoardException()
