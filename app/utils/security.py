@@ -2,11 +2,14 @@ from typing import cast
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, exceptions
-from fastapi import status
 from pydantic import BaseModel, ValidationError
 
 from app.base.settings import settings
-from app.base.base_exception import BaseHTTPException
+from app.core.exception import (
+    ExpiredTokenException,
+    InvalidTokenDataException,
+    InvalidTokenException,
+)
 
 
 class Security:
@@ -51,17 +54,8 @@ class JWT:
             )
             return cls.Payload.model_validate(decoded)
         except exceptions.ExpiredSignatureError:
-            raise BaseHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="토큰이 만료되었습니다.",
-            )
+            raise ExpiredTokenException()
         except exceptions.JWTError:
-            raise BaseHTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="유효하지 않은 토큰입니다.",
-            )
+            raise InvalidTokenException()
         except ValidationError:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="토큰 데이터가 유효하지 않습니다.",
-            )
+            raise InvalidTokenDataException()

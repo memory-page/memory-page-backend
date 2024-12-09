@@ -1,4 +1,3 @@
-from fastapi import status
 from korcen import korcen
 
 from app.domain.memo.request import MemoInsertRequest
@@ -6,7 +5,15 @@ from app.domain.memo.collection import MemoCollection
 from app.domain.memo.document import MemoDocument
 from app.domain.board.service import BoardService
 from app.utils.security import JWT
-from app.base.base_exception import BaseHTTPException
+from app.core.exception import (
+    CanNotUseBadWordInContentException,
+    CanNotUseBadWordInNameException,
+    CanNotUseSpaceFrontEndBackInNameException,
+    ContentLengthException,
+    DoesNotExistMemoException,
+    NotEqualMemoIdAndBoardIdException,
+    ValidateAuthorLengthException,
+)
 
 
 class MemoService:
@@ -82,17 +89,11 @@ class MemoService:
         """
         # 비속어 금지, Reference: https://github.com/Tanat05/korcen
         if korcen.check(content):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="내용에 비속어는 사용할 수 없습니다.",
-            )
+            raise CanNotUseBadWordInContentException()
 
         # 내용 길이 검사 (임시로 길이 지정)
         if len(content) < 1 or len(content) > 30:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="내용은 1자 이상 30자 이하로 작성해야 합니다.",
-            )
+            raise ContentLengthException()
 
     @classmethod
     async def _validate_author(cls, author: str) -> None:
@@ -115,24 +116,15 @@ class MemoService:
         """
         # 비속어 금지, Reference: https://github.com/Tanat05/korcen
         if korcen.check(author):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름에 비속어는 사용할 수 없습니다.",
-            )
+            raise CanNotUseBadWordInNameException()
 
         # 앞 뒤 공백 금지
         if author[0] == " " or author[-1] == " ":
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름의 앞과 뒤는 공백일 수 없습니다.",
-            )
+            raise CanNotUseSpaceFrontEndBackInNameException()
 
         # 이름 길이 검사 (임시로 길이 지정)
         if len(author) < 1 or len(author) > 10:
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="이름은 1자 이상 10자 이하로 작성해야 합니다.",
-            )
+            raise ValidateAuthorLengthException()
 
     @classmethod
     async def _validate_memo_id(cls, memo_id: str) -> MemoDocument:
@@ -153,10 +145,7 @@ class MemoService:
         """
         memo = await MemoCollection.find_memo_by_id(memo_id=memo_id)
         if not memo:
-            raise BaseHTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="존재하지 않은 메모입니다.",
-            )
+            raise DoesNotExistMemoException()
 
         return memo
 
@@ -181,10 +170,7 @@ class MemoService:
         403: 메모의 board_id와 JWT의 board_id가 일치하지 않을 경우
         """
         if memo_board_id != token_board_id:
-            raise BaseHTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="메모가 요청한 board_id에 속하지 않습니다.",
-            )
+            raise NotEqualMemoIdAndBoardIdException()
 
     @classmethod
     async def _validate_object_id(cls, memo_id: str) -> None:
@@ -202,7 +188,4 @@ class MemoService:
         if len(memo_id) != 24 or not all(
             c in "0123456789abcdefABCDEF" for c in memo_id
         ):
-            raise BaseHTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="존재하지 않는 메모입니다.",
-            )
+            raise DoesNotExistMemoException()
