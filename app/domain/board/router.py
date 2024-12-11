@@ -77,15 +77,14 @@ async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertRe
 
 
 @router.get(
-    path="/board/{board_id}/", 
-    response_model=BoardGetResponse, 
-    responses=get_board_boardid_responses()
+    path="/board/{board_id}/",
+    response_model=BoardGetResponse,
+    responses=get_board_boardid_responses(),
 )
-async def board_insert(
-    board_id: str, 
-    token: JWT.Payload = Depends(JWT.decode_access_token)
+async def board_get(
+    board_id: str, token: JWT.Payload = Depends(JWT.decode_access_token)
 ) -> BoardGetResponse:
     bg_num, memo_list = await BoardService.get_board(board_id=board_id, token=token)
- 
+
     response_data = BoardGetData(bg_num=bg_num, memo_list=memo_list)
     return BoardGetResponse(detail="칠판 조회.", data=response_data)

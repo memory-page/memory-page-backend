@@ -54,7 +54,7 @@ class MemoCollection:
         result = await cls._collection.find_one(filter={"_id": ObjectId(memo_id)})
 
         return cls._parse(result) if result else None
-    
+
     @classmethod
     async def find_memo_list_by_board_id(cls, board_id: str) -> list[MemoDocument]:
         """
