@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from app.base.base_response import BaseResponseModel
+from app.domain.memo.response import MemoSummaryData
 
 
 class BoardInsertData(BaseModel):
@@ -28,3 +29,12 @@ class BoardValidateData(BaseModel):
 
 class BoardValidateResponse(BaseResponseModel):
     data: BoardValidateData
+
+
+class BoardGetData(BaseModel):
+    bg_num: int = Field(..., description="배경 번호", examples=[0])
+    memo_list: list[MemoSummaryData] = Field(..., description="메모 리스트")
+
+
+class BoardGetResponse(BaseResponseModel):
+    data: BoardGetData

@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from app.domain.board.request import (
     BoardInsertRequest,
@@ -12,6 +12,8 @@ from app.domain.board.response import (
     LoginResponse,
     BoardValidateData,
     BoardValidateResponse,
+    BoardGetData,
+    BoardGetResponse,
 )
 from app.domain.board.service import BoardService
 from app.domain.memo.request import MemoInsertRequest
@@ -20,6 +22,7 @@ from app.domain.memo.service import MemoService
 from app.core.exception import *
 from app.utils.responses_creater import ResponsesCreater
 from app.core.swagger_responses import *
+from app.utils.security import JWT
 
 router = APIRouter()
 response_creater = ResponsesCreater()
@@ -71,3 +74,14 @@ async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertRe
 
     response_data = MemoInsertData(memo_id=inserted_id)
     return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)
+
+
+@router.get(path="/board/{board_id}/", response_model=BoardGetResponse)
+async def board_insert(
+    board_id: str, 
+    token: JWT.Payload = Depends(JWT.decode_access_token)
+) -> BoardGetResponse:
+    bg_num, memo_list = await BoardService.get_board(board_id=board_id, token=token)
+ 
+    response_data = BoardGetData(bg_num=bg_num, memo_list=memo_list)
+    return BoardGetResponse(detail="칠판 조회.", data=response_data)
