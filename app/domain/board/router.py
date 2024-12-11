@@ -76,7 +76,11 @@ async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertRe
     return MemoInsertResponse(detail="메모지 생성 완료.", data=response_data)
 
 
-@router.get(path="/board/{board_id}/", response_model=BoardGetResponse)
+@router.get(
+    path="/board/{board_id}/", 
+    response_model=BoardGetResponse, 
+    responses=get_board_boardid_responses()
+)
 async def board_insert(
     board_id: str, 
     token: JWT.Payload = Depends(JWT.decode_access_token)

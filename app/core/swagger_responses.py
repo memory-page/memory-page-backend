@@ -9,6 +9,8 @@ from app.core.exception import (
     DoesNotExistBoardException,
     DoesNotExistMemoException,
     DuplicateNameException,
+    ExpiredTokenException,
+    InvalidTokenDataException,
     MinLengthInPasswordException,
     NotEqualMemoIdAndBoardIdException,
     OnlyKrEngNumSpecialInNameException,
@@ -93,5 +95,15 @@ def get_memo_momoid_responses() -> Dict[Any, Any]:
             DoesNotExistMemoException()._responses(),
             DoesNotExistMemoException()._responses(),
             NotEqualMemoIdAndBoardIdException()._responses(),
+        ]
+    )
+
+
+def get_board_boardid_responses() -> Dict[Any, Any]:
+    return response_creater.responses_creater(
+        [
+            DoesNotExistBoardException()._responses(),
+            ExpiredTokenException()._responses(),
+            InvalidTokenDataException()._responses(),
         ]
     )
