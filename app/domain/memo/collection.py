@@ -54,3 +54,19 @@ class MemoCollection:
         result = await cls._collection.find_one(filter={"_id": ObjectId(memo_id)})
 
         return cls._parse(result) if result else None
+
+    @classmethod
+    async def find_memo_list_by_board_id(cls, board_id: str) -> list[MemoDocument]:
+        """
+        보드 ID를 사용해 메모 리스트를 조회하는 함수
+
+        Parameters
+        ---
+        board_id: str, 조회할 보드 ID
+
+        Return
+        ---
+        list[MemoDocument], 조회된 메모 리스트
+        """
+        result = cls._collection.find(filter={"board_id": board_id})
+        return [cls._parse(document) async for document in result]

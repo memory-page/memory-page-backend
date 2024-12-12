@@ -16,6 +16,7 @@ from app.core.exception import (
     CanNotUseSpaceInPasswordException,
     DoesNotExistBoardException,
     DuplicateNameException,
+    InvalidTokenDataException,
     MinLengthInPasswordException,
     OnlyKrEngNumSpecialInNameException,
     TooLongNameException,
@@ -23,6 +24,8 @@ from app.core.exception import (
     ValidateDateStrException,
     WrongNameOrPasswordInValidateLoginException,
 )
+from app.domain.memo.response import MemoSummaryData
+from app.domain.memo.collection import MemoCollection
 
 
 class BoardService:
@@ -56,6 +59,56 @@ class BoardService:
 
         inserted_id = await BoardCollection.insert_board(document=insert_board)
         return inserted_id
+
+    @classmethod
+    async def get_board(
+        cls, board_id: str, token: JWT.Payload
+    ) -> tuple[int, list[MemoSummaryData]]:
+        """
+        칠판 정보를 가져오는 함수
+
+        Parameters
+        ---
+        board_id: str, 요청된 칠판 ID
+        token: JWT.Payload, JWT에 포함된 정보
+
+        Return
+        ---
+        tuple[int, list[MemoSummaryData]], 칠판 배경 번호와 메모 리스트
+        """
+        await cls._validate_board_id_in_token(
+            board_id=board_id, token_board_id=token.board_id
+        )
+        await cls._validate_object_id(board_id=token.board_id)
+
+        board = await cls._validate_board_id(board_id=token.board_id)
+        bg_num = board.bg_num
+
+        memo_list = await cls.get_memo_list_by_board_id(board_id=token.board_id)
+
+        return bg_num, memo_list
+
+    @classmethod
+    async def get_memo_list_by_board_id(cls, board_id: str) -> list[MemoSummaryData]:
+        """
+        메모 리스트를 반환하는 함수
+
+        Parameters
+        ---
+        board_id: str, 메모가 속한 칠판 ID
+
+        Return
+        ---
+        list[MemoSummaryData], 메모 요약 리스트
+        """
+        memo_list = await MemoCollection.find_memo_list_by_board_id(board_id=board_id)
+        memo_summary_list = [
+            MemoSummaryData(
+                memo_id=str(memo._id), locate_idx=memo.locate_idx, bg_num=memo.bg_num
+            )
+            for memo in memo_list
+        ]
+        return memo_summary_list
 
     @classmethod
     async def login(cls, request: LoginRequest) -> tuple[str, str]:
@@ -260,7 +313,7 @@ class BoardService:
         return date_time
 
     @classmethod
-    async def _validate_board_id(cls, board_id: str) -> None:
+    async def _validate_board_id(cls, board_id: str) -> BoardDocument:
         """
         board_id의 존재 여부를 검증하는 함수
 
@@ -268,13 +321,38 @@ class BoardService:
         ---
         board_id: str, 검증할 칠판 ID
 
+        Return
+        ---
+        BoardDocument, 존재하는 경우 칠판 문서 객체
+
         Exceptions
         ---
         404: board_id에 해당하는 칠판이 존재하지 않을 경우
         """
-        result = await BoardCollection.find_board_by_id(board_id=board_id)
-        if result is None:
+        board = await BoardCollection.find_board_by_id(board_id=board_id)
+        if board is None:
             raise DoesNotExistBoardException()
+        return board
+
+    @classmethod
+    async def _validate_board_id_in_token(
+        cls, board_id: str, token_board_id: str
+    ) -> None:
+        """
+        토큰에 포함된 칠판 ID가 제공된 칠판 ID와 일치하는지 검증하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+        token_board_id: str, 토큰에서 추출된 칠판 ID
+
+        Exceptions
+        ---
+        400: 칠판 ID가 토큰의 칠판 ID와 일치하지 않을 경우
+        """
+
+        if board_id != token_board_id:
+            raise InvalidTokenDataException()
 
     @classmethod
     async def _validate_object_id(cls, board_id: str) -> None:

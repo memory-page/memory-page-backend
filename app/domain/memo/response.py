@@ -20,3 +20,9 @@ class MemoData(BaseModel):
 
 class MemoResponse(BaseResponseModel):
     data: MemoData
+
+
+class MemoSummaryData(BaseModel):
+    memo_id: str = Field(..., description="메모 아이디", examples=["uuid"])
+    locate_idx: int = Field(..., description="메모 위치", examples=[0])
+    bg_num: int = Field(..., description="배경 번호", examples=[0])
