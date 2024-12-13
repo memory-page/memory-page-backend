@@ -13,14 +13,14 @@ class mock_board_dto:
     board_name: str
     password: str
     bg_num: int
-    graduated_at: datetime
+    graduated_at: str
 
 
 async def mock_create_board(
     board_name: str | None = None,
     password: str | None = None,
     bg_num: int = 0,
-    graduated_at: datetime | None = None,
+    graduated_at: str | None = None,
 ) -> Tuple[Response, mock_board_dto]:
     """
     칠판 생성 모킹 함수
@@ -40,13 +40,15 @@ async def mock_create_board(
     is_mock_board_name = board_name is None
     board_name = board_name or str(uuid.uuid4())
     password = password or str(uuid.uuid4())
-    graduated_at = graduated_at or datetime.now() + timedelta(weeks=1)
+    graduated_at = (
+        graduated_at or str(datetime.now() + timedelta(weeks=1)).split(" ")[0]
+    )
 
     mock_request = {
         "board_name": board_name,
         "password": password,
         "bg_num": bg_num,
-        "graduated_at": str(datetime.now() + timedelta(weeks=1)).split(" ")[0],
+        "graduated_at": graduated_at,
     }
 
     async with AsyncClient(
