@@ -46,7 +46,7 @@ async def mock_create_board(
         "board_name": board_name,
         "password": password,
         "bg_num": bg_num,
-        "graduated_at": graduated_at.isoformat(),
+        "graduated_at": str(datetime.now() + timedelta(weeks=1)).split(" ")[0],
     }
 
     async with AsyncClient(
