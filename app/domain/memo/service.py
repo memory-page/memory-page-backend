@@ -66,6 +66,7 @@ class MemoService:
         await cls._validate_board_id_in_memo(
             memo_board_id=memo.board_id, token_board_id=token.board_id
         )
+        await BoardService._validate_board_graduation(board_id=token.board_id)
 
         return memo.author, memo.content
 
