@@ -389,7 +389,6 @@ class BoardService:
         KST = timezone(timedelta(hours=9))
         board = await cls._validate_board_id(board_id=board_id)
         korea_time = datetime.now(KST)
-        if board.graduated_at:
-            graduated_at = board.graduated_at.astimezone(KST)
-            if korea_time < graduated_at:
-                raise BoardGraduatedException()
+        graduated_at = board.graduated_at.astimezone(KST)
+        if korea_time < graduated_at:
+            raise BoardGraduatedException()
