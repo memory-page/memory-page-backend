@@ -146,3 +146,11 @@ class InvalidTokenDataException(BaseHTTPException):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="토큰 데이터가 유효하지 않습니다.",
         )
+
+
+class BoardGraduatedException(BaseHTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="졸업 당일부터 조회가 가능합니다.",
+        )

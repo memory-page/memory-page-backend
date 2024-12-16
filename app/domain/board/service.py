@@ -1,6 +1,6 @@
 import re
 from korcen import korcen
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from app.domain.board.request import (
     BoardInsertRequest,
@@ -11,6 +11,7 @@ from app.domain.board.collection import BoardCollection
 from app.domain.board.document import BoardDocument
 from app.utils.security import Security, JWT
 from app.core.exception import (
+    BoardGraduatedException,
     CanNotUseBadWordInNameException,
     CanNotUseSpaceFrontEndBackInNameException,
     CanNotUseSpaceInPasswordException,
@@ -371,3 +372,23 @@ class BoardService:
             c in "0123456789abcdefABCDEF" for c in board_id
         ):
             raise DoesNotExistBoardException()
+
+    @classmethod
+    async def _validate_board_graduation(cls, board_id: str) -> None:
+        """
+        칠판의 graduated_at보다 이전인지 확인하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Exceptions
+        ---
+        403: 조회 시점이 졸업 시점보다 이전일 경우
+        """
+        KST = timezone(timedelta(hours=9))
+        board = await cls._validate_board_id(board_id=board_id)
+        korea_time = datetime.now(KST)
+        graduated_at = board.graduated_at.astimezone(KST)
+        if korea_time < graduated_at:
+            raise BoardGraduatedException()
