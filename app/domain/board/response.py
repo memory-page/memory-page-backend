@@ -6,6 +6,7 @@ from app.domain.memo.response import MemoSummaryData
 
 class BoardInsertData(BaseModel):
     board_id: str = Field(..., description="삽입된 보드 아이디", examples=["uuid"])
+    token: str = Field(..., description="엑세스 토큰", examples=["access token"])
 
 
 class BoardInsertResponse(BaseResponseModel):

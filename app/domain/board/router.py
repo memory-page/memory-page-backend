@@ -36,7 +36,9 @@ response_creater = ResponsesCreater()
 async def board_insert(request: BoardInsertRequest) -> BoardInsertResponse:
     insertd_id = await BoardService.insert_board(request=request)
 
-    response_data = BoardInsertData(board_id=insertd_id)
+    token = await JWT.create_access_token(board_id=insertd_id)
+
+    response_data = BoardInsertData(board_id=insertd_id, token=token)
     return BoardInsertResponse(detail="칠판 생성 완료.", data=response_data)
 
 
