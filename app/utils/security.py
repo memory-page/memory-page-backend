@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Optional, cast
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from jose import jwt, exceptions
@@ -61,23 +61,8 @@ class JWT:
             raise InvalidTokenDataException()
 
     @classmethod
-    def optional_decode_access_token(
-        cls, token: str | None, board_id: str
-    ) -> Payload | None:
-        # TODO: 좀 코드가 더러워서 수정해야되지 않을까 생각중..
-        if token is None:
+    def optional_token(cls, token: Optional[str] = None) -> Optional[Payload]:
+        if not token:
             return None
 
-        try:
-            decoded = jwt.decode(
-                token,
-                settings.JWT_SECRET_KEY,
-                algorithms=[settings.JWT_ALGORITHM],
-            )
-            return cls.Payload.model_validate(decoded)
-        except exceptions.ExpiredSignatureError:
-            raise ExpiredTokenException()
-        except exceptions.JWTError:
-            raise InvalidTokenException()
-        except ValidationError:
-            raise InvalidTokenDataException()
+        return cls.decode_access_token(token)

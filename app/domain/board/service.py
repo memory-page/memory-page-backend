@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from korcen import korcen
 from datetime import datetime, timedelta, timezone
 
@@ -62,7 +63,9 @@ class BoardService:
         return inserted_id
 
     @classmethod
-    async def get_board(cls, board_id: str) -> tuple[int, list[MemoSummaryData]]:
+    async def get_board(
+        cls, board_id: str, token: Optional[JWT.Payload] = None
+    ) -> tuple[bool, str, int, list[MemoSummaryData]]:
         """
         칠판 정보를 가져오는 함수
 
@@ -74,17 +77,19 @@ class BoardService:
         ---
         tuple[int, list[MemoSummaryData]], 칠판 배경 번호와 메모 리스트
         """
-        await cls._validate_board_id_in_token(
-            board_id=board_id, token_board_id=board_id
-        )
+        is_self = False
+
+        if token:
+            await cls._validate_board_id_in_token(
+                board_id=board_id, token_board_id=token.board_id
+            )
+            is_self = True
+
         await cls._validate_object_id(board_id=board_id)
-
         board = await cls._validate_board_id(board_id=board_id)
-        bg_num = board.bg_num
-
         memo_list = await cls.get_memo_list_by_board_id(board_id=board_id)
 
-        return bg_num, memo_list
+        return is_self, board.board_name, board.bg_num, memo_list
 
     @classmethod
     async def get_memo_list_by_board_id(cls, board_id: str) -> list[MemoSummaryData]:
