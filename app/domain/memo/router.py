@@ -1,12 +1,18 @@
 from fastapi import APIRouter, Depends, Path
 
+from app.domain.memo.request import MemoValidateRequest
 from app.domain.memo.response import (
     MemoResponse,
     MemoData,
+    MemoValidateData,
+    MemoValidateResponse,
 )
 from app.domain.memo.service import MemoService
 from app.utils.security import JWT
-from app.core.swagger_responses import get_memo_momoid_responses
+from app.core.swagger_responses import (
+    get_memo_momoid_responses,
+    get_memo_validate_responses,
+)
 
 router = APIRouter()
 
@@ -24,3 +30,17 @@ async def memo_get(
 
     response_data = MemoData(author=author, content=content)
     return MemoResponse(detail="메모지 조회.", data=response_data)
+
+
+@router.post(
+    path="/memo/validate",
+    response_model=MemoValidateResponse,
+    responses=get_memo_validate_responses(),
+)
+async def memo_validate(request: MemoValidateRequest) -> MemoValidateResponse:
+    is_pass = await MemoService.validate_memo(
+        author=request.author, content=request.content
+    )
+
+    response_data = MemoValidateData(is_pass=is_pass)
+    return MemoValidateResponse(detail="메모 검증 통과", data=response_data)

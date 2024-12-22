@@ -18,6 +18,25 @@ from app.core.exception import (
 
 class MemoService:
     @classmethod
+    async def validate_memo(cls, author: str, content: str) -> bool:
+        """
+        메모 작성자와 내용을 검토하는 함수
+
+        Parameters
+        ---
+        author: str, 메모 작성자
+        content: str, 메모 내용
+
+        Return
+        ---
+        bool(True), 이상이 없으면 Exception이 발생되지 않고 True 반환
+        """
+        await cls._validate_author(author=author)
+        await cls._validate_content(content=content)
+
+        return True
+
+    @classmethod
     async def insert_memo(cls, board_id: str, request: MemoInsertRequest) -> str:
         """
         메모를 생성하는 서비스 함수

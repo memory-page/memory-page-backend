@@ -8,3 +8,8 @@ class MemoInsertRequest(BaseModel):
     content: str = Field(
         ..., description="메모 내용", examples=["너는 좋은 개발자가 되렴"]
     )
+
+
+class MemoValidateRequest(BaseModel):
+    author: str = Field(..., description="메모 작성자", examples=["인규"])
+    content: str = Field(..., description="메모 내용", examples=["축하해"])
