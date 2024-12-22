@@ -89,6 +89,7 @@ def post_board_boardid_memo_responses() -> Dict[Any, Any]:
     )
 
 
+# TODO: [typo] momo -> memo
 def get_memo_momoid_responses() -> Dict[Any, Any]:
     return response_creater.responses_creater(
         [
@@ -105,5 +106,17 @@ def get_board_boardid_responses() -> Dict[Any, Any]:
             DoesNotExistBoardException()._responses(),
             ExpiredTokenException()._responses(),
             InvalidTokenDataException()._responses(),
+        ]
+    )
+
+
+def get_memo_validate_responses() -> Dict[Any, Any]:
+    return response_creater.responses_creater(
+        [
+            CanNotUseBadWordInNameException()._responses(),
+            CanNotUseSpaceFrontEndBackInNameException()._responses(),
+            ValidateAuthorLengthException()._responses(),
+            CanNotUseBadWordInContentException()._responses(),
+            ContentLengthException()._responses(),
         ]
     )
