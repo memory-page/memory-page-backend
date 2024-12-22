@@ -13,6 +13,7 @@ from app.core.exception import (
     DoesNotExistMemoException,
     NotEqualMemoIdAndBoardIdException,
     ValidateAuthorLengthException,
+    SameLocateIdxMemoException,
 )
 
 
@@ -55,6 +56,13 @@ class MemoService:
 
         await cls._validate_author(author=request.author)
         await cls._validate_content(content=request.content)
+
+        is_same = await MemoCollection.is_same_locate_idx_memo(
+            board_id=board_id, locate_idx=request.locate_idx
+        )
+
+        if is_same:
+            raise SameLocateIdxMemoException()
 
         insert_memo = MemoDocument(
             board_id=board_id,

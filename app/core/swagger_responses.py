@@ -19,6 +19,7 @@ from app.core.exception import (
     ValidateAuthorLengthException,
     ValidateDateStrException,
     WrongNameOrPasswordInValidateLoginException,
+    SameLocateIdxMemoException,
 )
 from app.utils.responses_creater import ResponsesCreater
 
@@ -85,6 +86,7 @@ def post_board_boardid_memo_responses() -> Dict[Any, Any]:
             ValidateAuthorLengthException()._responses(),
             CanNotUseBadWordInContentException()._responses(),
             ContentLengthException()._responses(),
+            SameLocateIdxMemoException()._responses(),
         ]
     )
 

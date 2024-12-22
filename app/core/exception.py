@@ -154,3 +154,11 @@ class BoardGraduatedException(BaseHTTPException):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="졸업 당일부터 조회가 가능합니다.",
         )
+
+
+class SameLocateIdxMemoException(BaseHTTPException):
+    def __init__(self) -> None:
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="메모 위치가 중복되었습니다.",
+        )
