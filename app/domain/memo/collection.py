@@ -70,3 +70,23 @@ class MemoCollection:
         """
         result = cls._collection.find(filter={"board_id": board_id})
         return [cls._parse(document) async for document in result]
+
+    @classmethod
+    async def is_same_locate_idx_memo(cls, board_id: str, locate_idx: int) -> bool:
+        """
+        보드 아이디와 메모 위치를 통해 메모 위치 중복을 판단하는 함수
+
+        Parameters
+        ---
+        board_id: str, 조회할 보드 ID
+        locate_idx: int, 삽입할 메모 위치
+
+        Return
+        ---
+        is_same: bool, 메모 위치 중복 여부 반환
+        """
+        result = await cls._collection.find_one(
+            filter={"board_id": board_id, "locate_idx": locate_idx}
+        )
+
+        return True if result else False
