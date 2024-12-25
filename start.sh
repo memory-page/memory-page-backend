@@ -18,6 +18,8 @@ echo "새로운 웹 서버를 시작합니다..."
     -w 7 \
     -k uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:5012 \
+    --certfile ./selfsigned.crt \
+    --keyfile ./selfsigned.key \
     --access-logfile ./gunicorn-access.log \
     --error-logfile ./gunicorn-error.log \
     --capture-output \
