@@ -1,5 +1,4 @@
-from typing import Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Header
 
 from app.domain.board.request import (
     BoardInsertRequest,
@@ -85,10 +84,11 @@ async def memo_insert(board_id: str, request: MemoInsertRequest) -> MemoInsertRe
     responses=get_board_boardid_responses(),
 )
 async def board_get(
-    board_id: str, token: Optional[JWT.Payload] = Depends(JWT.optional_token)
+    board_id: str,
+    token: str = Header(None, description="토큰 값"),
 ) -> BoardGetResponse:
     is_self, board_name, bg_num, memo_list = await BoardService.get_board(
-        board_id=board_id, token=token
+        board_id=board_id, token=JWT.optional_token(token)
     )
 
     response_data = BoardGetData(
