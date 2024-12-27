@@ -3,7 +3,7 @@ name: CI/CD Pipeline for Deployment
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
@@ -27,9 +27,9 @@ jobs:
     - name: Deploy to Remote Server
       run: |
         ssh -t ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-          cd ${{ secrets.PROJECT_PATH }}
-          git fetch origin dev
-          git reset --hard origin/dev
-          chmod +x start.sh
-          bash start.sh
+          cd ${{ secrets.MAIN_PROJECT_PATH }}
+          git fetch origin main
+          git reset --hard origin/main
+          chmod +x start_prod.sh
+          bash start_prod.sh
         EOF
