@@ -20,6 +20,7 @@ from app.core.exception import (
     ValidateDateStrException,
     WrongNameOrPasswordInValidateLoginException,
     SameLocateIdxMemoException,
+    BoardGraduatedException,
 )
 from app.utils.responses_creater import ResponsesCreater
 
@@ -98,6 +99,7 @@ def get_memo_momoid_responses() -> Dict[Any, Any]:
             DoesNotExistMemoException()._responses(),
             DoesNotExistMemoException()._responses(),
             NotEqualMemoIdAndBoardIdException()._responses(),
+            BoardGraduatedException()._responses(),
         ]
     )
 
