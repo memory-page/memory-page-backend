@@ -152,7 +152,7 @@ class BoardGraduatedException(BaseHTTPException):
     def __init__(self) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="졸업 당일부터 조회가 가능합니다.",
+            detail="새해부터 조회가 가능합니다.",
         )
 
 
