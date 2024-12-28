@@ -18,7 +18,6 @@ from app.core.exception import (
     CanNotUseSpaceInPasswordException,
     DoesNotExistBoardException,
     DuplicateNameException,
-    InvalidTokenDataException,
     MinLengthInPasswordException,
     OnlyKrEngNumSpecialInNameException,
     TooLongNameException,
@@ -80,10 +79,10 @@ class BoardService:
         is_self = False
 
         if token:
-            await cls._validate_board_id_in_token(
+            if await cls._validate_board_id_in_token(
                 board_id=board_id, token_board_id=token.board_id
-            )
-            is_self = True
+            ):
+                is_self = True
 
         await cls._validate_object_id(board_id=board_id)
         board = await cls._validate_board_id(board_id=board_id)
@@ -340,7 +339,7 @@ class BoardService:
     @classmethod
     async def _validate_board_id_in_token(
         cls, board_id: str, token_board_id: str
-    ) -> None:
+    ) -> bool:
         """
         토큰에 포함된 칠판 ID가 제공된 칠판 ID와 일치하는지 검증하는 함수
 
@@ -355,7 +354,8 @@ class BoardService:
         """
 
         if board_id != token_board_id:
-            raise InvalidTokenDataException()
+            return False
+        return True
 
     @classmethod
     async def _validate_object_id(cls, board_id: str) -> None:
