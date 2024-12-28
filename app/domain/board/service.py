@@ -347,10 +347,6 @@ class BoardService:
         ---
         board_id: str, 검증할 칠판 ID
         token_board_id: str, 토큰에서 추출된 칠판 ID
-
-        Exceptions
-        ---
-        400: 칠판 ID가 토큰의 칠판 ID와 일치하지 않을 경우
         """
 
         if board_id != token_board_id:
