@@ -113,14 +113,14 @@ class MemoService:
         Exceptions
         ---
         400: 내용에 비속어가 포함된 경우
-        400: 내용의 길이가 1자 미만 30자 초과인 경우
+        400: 내용의 길이가 1자 미만 100자 초과인 경우
         """
         # 비속어 금지, Reference: https://github.com/Tanat05/korcen
         if korcen.check(content):
             raise CanNotUseBadWordInContentException()
 
         # 내용 길이 검사 (임시로 길이 지정)
-        if len(content) < 1 or len(content) > 30:
+        if len(content) < 1 or len(content) > 100:
             raise ContentLengthException()
 
     @classmethod
