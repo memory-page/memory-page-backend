@@ -99,7 +99,7 @@ class ContentLengthException(BaseHTTPException):
     def __init__(self) -> None:
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="내용은 1자 이상 30자 이하로 작성해야 합니다.",
+            detail="내용은 1자 이상 100자 이하로 작성해야 합니다.",
         )
 
 
