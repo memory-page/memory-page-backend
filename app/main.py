@@ -6,8 +6,15 @@ from typing import Any, Dict
 from app.domain.board.router import router as board_router
 from app.domain.memo.router import router as memo_router
 from app.domain.developer.router import router as developer_router
+from app.base.settings import settings
 
-app = FastAPI()
+mode = settings.MODE
+
+app = FastAPI(
+    openapi_url=None if mode == "MAIN" else "/openapi.json",
+    docs_url=None if mode == "MAIN" else "/docs",
+    redoc_url=None if mode == "MAIN" else "/redoc",
+)
 
 app.add_middleware(
     CORSMiddleware,
