@@ -34,6 +34,7 @@ class BoardValidateResponse(BaseResponseModel):
 
 class BoardGetData(BaseModel):
     is_self: bool = Field(..., description="본인 조회 여부", examples=[True, False])
+    is_graduated: bool = Field(..., description="졸업 여부", examples=[True, False])
     board_name: str = Field(..., description="보드 이름", examples=["프로젝트 보드"])
     bg_num: int = Field(..., description="배경 번호", examples=[0])
     memo_list: list[MemoSummaryData] = Field(..., description="메모 리스트")
