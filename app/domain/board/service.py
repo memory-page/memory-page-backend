@@ -30,6 +30,7 @@ from app.domain.memo.collection import MemoCollection
 
 
 class BoardService:
+
     @classmethod
     async def insert_board(cls, request: BoardInsertRequest) -> str:
         """
@@ -64,7 +65,7 @@ class BoardService:
     @classmethod
     async def get_board(
         cls, board_id: str, token: Optional[JWT.Payload] = None
-    ) -> tuple[bool, str, int, list[MemoSummaryData]]:
+    ) -> tuple[bool, bool, str, int, list[MemoSummaryData]]:
         """
         칠판 정보를 가져오는 함수
 
@@ -87,8 +88,9 @@ class BoardService:
         await cls._validate_object_id(board_id=board_id)
         board = await cls._validate_board_id(board_id=board_id)
         memo_list = await cls.get_memo_list_by_board_id(board_id=board_id)
+        is_graduated = await cls._is_board_graduation(board_id=board_id)
 
-        return is_self, board.board_name, board.bg_num, memo_list
+        return is_self, is_graduated, board.board_name, board.bg_num, memo_list
 
     @classmethod
     async def get_memo_list_by_board_id(cls, board_id: str) -> list[MemoSummaryData]:
@@ -184,7 +186,8 @@ class BoardService:
 
         # 한글, 영어, 숫자, 특수문자만 허용
         if not re.match(
-            r"^[가-힣a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$", board_name
+            r"^[가-힣ㄱ-ㅎa-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$",
+            board_name,
         ):
             raise OnlyKrEngNumSpecialInNameException()
 
@@ -372,6 +375,25 @@ class BoardService:
             raise DoesNotExistBoardException()
 
     @classmethod
+    async def _get_graduation_status(cls, board_id: str) -> bool:
+        """
+        칠판의 졸업 여부와 졸업 시간을 반환하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Returns
+        ---
+        bool: 졸업 여부
+        """
+        KST = timezone(timedelta(hours=9))
+        board = await cls._validate_board_id(board_id=board_id)
+        graduated_at = board.graduated_at.astimezone(KST)
+        is_graduated = datetime.now(KST) >= graduated_at
+        return is_graduated
+
+    @classmethod
     async def _validate_board_graduation(cls, board_id: str) -> None:
         """
         칠판의 graduated_at보다 이전인지 확인하는 함수
@@ -384,9 +406,22 @@ class BoardService:
         ---
         403: 조회 시점이 졸업 시점보다 이전일 경우
         """
-        KST = timezone(timedelta(hours=9))
-        board = await cls._validate_board_id(board_id=board_id)
-        korea_time = datetime.now(KST)
-        graduated_at = board.graduated_at.astimezone(KST)
-        if korea_time < graduated_at:
+        is_graduated = await cls._get_graduation_status(board_id)
+        if not is_graduated:
             raise BoardGraduatedException()
+
+    @classmethod
+    async def _is_board_graduation(cls, board_id: str) -> bool:
+        """
+        졸업 여부를 반환하는 함수
+
+        Parameters
+        ---
+        board_id: str, 검증할 칠판 ID
+
+        Returns
+        ---
+        bool: 졸업 여부
+        """
+        is_graduated = await cls._get_graduation_status(board_id)
+        return is_graduated

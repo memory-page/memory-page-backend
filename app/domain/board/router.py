@@ -87,12 +87,13 @@ async def board_get(
     board_id: str,
     token: str = Header(None, description="토큰 값"),
 ) -> BoardGetResponse:
-    is_self, board_name, bg_num, memo_list = await BoardService.get_board(
+    is_self, is_graduated, board_name, bg_num, memo_list = await BoardService.get_board(
         board_id=board_id, token=JWT.optional_token(token)
     )
 
     response_data = BoardGetData(
         is_self=is_self,
+        is_graduated=is_graduated,
         board_name=board_name,
         bg_num=bg_num,
         memo_list=memo_list,
