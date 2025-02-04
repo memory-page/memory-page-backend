@@ -186,7 +186,8 @@ class BoardService:
 
         # 한글, 영어, 숫자, 특수문자만 허용
         if not re.match(
-            r"^[가-힣a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$", board_name
+            r"^[가-힣ㄱ-ㅎa-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?~`]+$",
+            board_name,
         ):
             raise OnlyKrEngNumSpecialInNameException()
 
