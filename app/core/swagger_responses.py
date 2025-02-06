@@ -99,7 +99,7 @@ def get_memo_momoid_responses() -> Dict[Any, Any]:
             DoesNotExistMemoException()._responses(),
             DoesNotExistMemoException()._responses(),
             NotEqualMemoIdAndBoardIdException()._responses(),
-            BoardGraduatedException()._responses(),
+            BoardGraduatedException(date="YYYY-MM-DD")._responses(),
         ]
     )
 
