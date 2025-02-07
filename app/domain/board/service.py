@@ -407,8 +407,11 @@ class BoardService:
         403: 조회 시점이 졸업 시점보다 이전일 경우
         """
         is_graduated = await cls._get_graduation_status(board_id)
+        date = await BoardCollection.find_board_graduated_at_by_id(board_id=board_id)
+        date = str(date).split(" ")[0]
+
         if not is_graduated:
-            raise BoardGraduatedException()
+            raise BoardGraduatedException(date=date)
 
     @classmethod
     async def _is_board_graduation(cls, board_id: str) -> bool:
