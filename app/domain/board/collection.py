@@ -1,6 +1,7 @@
 import dataclasses
 from typing import Any
 from bson import ObjectId
+from datetime import datetime
 
 from app.db.database import db
 from app.domain.board.document import BoardDocument
@@ -70,3 +71,20 @@ class BoardCollection:
         result = await cls._collection.find_one(filter={"_id": ObjectId(board_id)})
 
         return cls._parse(result) if result else None
+
+    @classmethod
+    async def find_board_graduated_at_by_id(cls, board_id: str) -> str | None:
+        """
+        칠판 아이디로 칠판 졸업일을 조회하는 함수
+
+        Parameter
+        ---
+        board_id: uuid, 칠판 아이디
+
+        Return
+        ---
+        칠판 졸업일
+        """
+        result = await cls._collection.find_one(filter={"_id": ObjectId(board_id)})
+
+        return result["graduated_at"] if result else None

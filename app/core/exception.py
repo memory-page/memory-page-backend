@@ -149,10 +149,10 @@ class InvalidTokenDataException(BaseHTTPException):
 
 
 class BoardGraduatedException(BaseHTTPException):
-    def __init__(self) -> None:
+    def __init__(self, date: str) -> None:
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="새해부터 조회가 가능합니다.",
+            detail=f"졸업일({date}) 이후부터 조회 가능합니다.",
         )
 
 
