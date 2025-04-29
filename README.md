@@ -11,6 +11,8 @@
 ![FastAPI badge](https://img.shields.io/badge/Backend%20Framework-FastAPI-darkgreen?logo=fastapi)
 ![React badge](https://img.shields.io/badge/Frontend%20Framework-React-blue?logo=React)
 ![Github badge](https://img.shields.io/badge/Frontend%20Code-Github-black?logo=github)
+![GitHub Actions badge](https://img.shields.io/badge/CI/CD-GitHub%20Actions-blue?logo=githubactions)
+
 
 ## 기억의 페이지
 
@@ -56,7 +58,8 @@
 
 <p>
   <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Notion-logo.svg" width="120" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="120" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="120"/>
+  <img src="readme/GithubAction.png" width="100"/>
 </p>
 
 ## 프로젝트 결과
